@@ -1,11 +1,37 @@
-import { useState } from "react";
+import { useState, useCallback , useEffect, useRef} from "react";
 import "./App.css";
 
 function App() {
   const [length, setLength] = useState(8); // this will basically be the passwrod length
   const [numberAllowed, setNumberAllowed] = useState(false);
-  const [charAllowed, setCharAllowed] = useState("");
+  const [charAllowed, setCharAllowed] = useState(false);
   const [password, setPassword] = useState("");
+
+  const generatePassword = useCallback(() => {
+    let pass = "";
+    let str = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    if (numberAllowed) str += "0123456789";
+    if (charAllowed) str += "!@#$%^&*()_+";
+    for (let i = 0; i < length; i++) {
+      const char =Math.floor(Math.random() * str.length );
+      pass+= str.charAt(char)
+    }
+    setPassword(pass)
+  }, [length, numberAllowed, charAllowed]);
+  
+  useEffect(()=> {
+    generatePassword()
+
+  },[length, charAllowed, numberAllowed])
+
+  const copyPasswordToClipboard =()=>{
+    window.navigator.clipboard.writeText(password)
+    passwordRef.current?.select()
+    // passwordRef.current?.setSelectionRange(0,4)
+
+
+  }
+  const passwordRef= useRef(null)
 
   return (
     <div className="w-full max-w-md mx-auto shadow-md rounded-lg px-4 py-3 my-8 bg-gray-800 text-orange-500">
@@ -19,53 +45,48 @@ function App() {
           className="outline-none w-full py-1 px-3"
           placeholder="Password"
           readOnly
+          ref={passwordRef}
         />
-        <button
-        className="outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0">Copy</button>
+        <button onClick={copyPasswordToClipboard} className="outline-none bg-blue-700 text-white px-3 py-0.5 shrink-0">
+          Copy
+        </button>
       </div>
-      <div 
-      className="flex text-sm gap-x-2">
-        <div
-        className="flex items-center gap-x-1">
+      <div className="flex text-sm gap-x-2">
+        <div className="flex items-center gap-x-1">
           <input
-          type="range"
-          min={6}
-          max={30}
-          value={length}
-          className="cursor-pointer"
-          onChange={(e)=>setLength(e.target.value)} //e is basically the event //
-          name=""
-          id=""
+            type="range"
+            min={6}
+            max={30}
+            value={length}
+            className="cursor-pointer"
+            onChange={(e) => setLength(Number(e.target.value))} //e is basically the event //
+            name=""
+            id=""
           />
-          <label  htmlFor="length">Length: {length}</label>
+          <label htmlFor="length">Length: {length}</label>
         </div>
-         <div
-        className="flex items-center gap-x-1">
+        <div className="flex items-center gap-x-1">
           <input
-          type="checkbox"
-          defaultChecked={numberAllowed}
-          
-          className="cursor-pointer"
-          onChange={()=>setNumberAllowed((prev)=>!prev )} //e is basically the event //
-          name=""
-          id=""
+            type="checkbox"
+            defaultChecked={numberAllowed}
+            className="cursor-pointer"
+            onChange={() => setNumberAllowed((prev) => !prev)} //e is basically the event //
+            name=""
+            id=""
           />
-          <label  htmlFor="number">Numbers</label>
+          <label htmlFor="number">Numbers</label>
         </div>
-        <div
-        className="flex items-center gap-x-1">
+        <div className="flex items-center gap-x-1">
           <input
-          type="checkbox"
-          defaultChecked={charAllowed}
-          
-          className="cursor-pointer"
-          onChange={()=>setCharAllowed((prev)=>!prev )} //e is basically the event //
-          name=""
-          id=""
+            type="checkbox"
+            defaultChecked={charAllowed}
+            className="cursor-pointer"
+            onChange={() => setCharAllowed((prev) => !prev)} //e is basically the event //
+            name=""
+            id=""
           />
-          <label  htmlFor="charInput">Charecters</label>
+          <label htmlFor="charInput">Charecters</label>
         </div>
-
       </div>
     </div>
   );
